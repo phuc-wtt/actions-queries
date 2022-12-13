@@ -1,6 +1,7 @@
 export default (file, api) => {
   const j = api.jscodeshift
   const root = j(file.source);
+  const queriesArr = []
 
   // check if has 'import query ...'
   
@@ -24,20 +25,24 @@ export default (file, api) => {
   // root.find(j.ImportDeclaration,{specifiers: [{local:{name: "query"}}]}).remove()
 
   
-	const r = root.find(j.CallExpression, {
+	root.find(j.CallExpression, {
     callee: {
       object: {object: {type: "Identifier", name: "query"}}
     }
   }).forEach(path => {
-    const node = path.node
+    const newIdentifier = `${path.node.callee.property.name}Query`
+    const newIdentifierLoc = `${path.node.callee.object.property.name.replace('Query', '')}:${newIdentifier}`
     const callExpr = j.callExpression(
-      j.identifier(`${node.callee.property.name}Query`),
-      node.arguments
+      j.identifier(newIdentifier),
+      path.node.arguments
     )
     const stateExpr = j.expressionStatement(callExpr);
 
     j(path).replaceWith(stateExpr)
+    queriesArr.push(newIdentifierLoc)
   })
+  console.log("QUERY_MARK")
+  console.log(queriesArr.join("|"))
     
   return root.toSource();
 }

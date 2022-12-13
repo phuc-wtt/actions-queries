@@ -5,6 +5,7 @@ export default (file, api) => {
   const imports = root.find(j.ImportDeclaration)
 
   const n = imports.length
+// TODO: redux/actions/queries/frontEnd/post.js
 
   // extract named-export from export-default-obj
   root.find(j.ExportDefaultDeclaration).find(j.Property, {value: {type: "FunctionExpression"}})
