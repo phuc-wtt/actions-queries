@@ -20,37 +20,24 @@ run(){
       echo "$queries_loc" |
         grep "$import_name" |
         sed -E "s|\./||" |
-        sed -E "s|:.*||" |
-        uniq 
+        sed -E "s|:.*||"
     )
+    echo "$import_path"
     # rm old import first
     sed -i -E "/import.*queries.*${import_name}/d" "$file_path"
-
+    # insert import
     while IFS= read -r method
     do
-      method=$(echo "$method" | grep -oP '(?<=\.).*')
-      method_suffixed=$(echo "${method}_QUERY")
-
-      # suffix prop_name
-      sed -i -E "s|${import_name}Query\.${method}|${method_suffixed}|g" "$file_path"
-
-
-      # insert import
-      # check if method already imported
-      local is_imported=$(grep "import.*${method_suffixed}" "$file_path")
-      if [ -z "$is_imported" ];
+      # check if already has import
+      local existed=$(grep "import.*queries.*${import_path}" $file_path)
+      if [ ! -z "$existed" ];
       then
-        # check if already has import
-        local existed=$(grep -noP "import.\{.*\}*${import_path}" $file_path)
-        if [ ! -z "$existed" ];
-        then
-          local line_num=$(echo "$existed" | grep -oP '^\d+')
-          sed -i -E "${line_num}s|(\{.*)(\s\})|\1, ${method_suffixed}\2|" "$file_path"
-        else
-          sed -i "1s|^|import { ${method_suffixed} } from '${import_path}'\n|g" "$file_path"
-        fi
+        echo "$existed"
+      else
+        sed -i "1s|^|import { ${method} }|g" "$file_path"
       fi
 
+      # suffix prop_name
     done <<< "$methods"
 
   done <<< "$direct_imports"
