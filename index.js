@@ -10,23 +10,16 @@ queries_files.forEach(filePath => {
 })
 
 
-// const actions_files = cli(` find ${actionsPath} -maxdepth 1 -name "*.js" | sed '/index/d' `)
-// const queries_loc = cli(`codemod/transform-actions/import-prep.sh ${queriesPath}`)
-// actions_files.forEach(filePath => {
-//   const usingQueriesRaw = cli(`jscodeshift -t codemod/transform-actions ${filePath} `)
-//   const usingQueries = getQueries(usingQueriesRaw, "QUERY_MARK", "|")
-//   if (usingQueries) {
-//     const a = cli(`codemod/transform-actions/import.sh ${filePath} ${usingQueries} ${queries_loc}`)
-//     console.log(a)
-//   }
-// })
-
-//TODO:
-//cli(`codemod/transform-actions/import_capital.sh`)
+const actions_files = cli(` find ${actionsPath} -maxdepth 1 -name "*.js" | sed '/index/d' `)
+const queries_loc = cli(`codemod/transform-actions/import-prep.sh ${queriesPath}`)
+actions_files.forEach(filePath => {
+  const usingQueriesRaw = cli(`jscodeshift -t codemod/transform-actions ${filePath} `)
+  const usingQueries = getQueries(usingQueriesRaw, "QUERY_MARK", "|")
+  if (usingQueries) {
+    console.log(`------------------- ${filePath} --------------------`)
+    console.log(cli(`codemod/transform-actions/import.sh ${filePath} ${usingQueries} ${queries_loc}`))
+  }
+})
 
 
-// TODO: add suffix:
-//  + func: 'Query'
-//  + var : '_QUERY'
-// TODO: direct query_file import
-// TODO: fix import path
+console.log("./redux/actions/postActions.js:import postQuery, { POST_STATUSES } from './queries/frontEnd/post'")

@@ -5,7 +5,6 @@ export default (file, api) => {
   const imports = root.find(j.ImportDeclaration)
 
   const n = imports.length
-// TODO: redux/actions/queries/frontEnd/post.js
 
   // extract named-export from export-default-obj
   root.find(j.ExportDefaultDeclaration).find(j.Property, {value: {type: "FunctionExpression"}})
@@ -40,6 +39,10 @@ export default (file, api) => {
           )
         ]
       )
+      if (path.parentPath.name !== "body") {
+        j(path).replaceWith(varDec)
+        return
+      }
       const namedExport = j.exportNamedDeclaration(varDec)
       j(path).replaceWith(namedExport)
   })
